@@ -20,12 +20,16 @@ public class Timer : MonoBehaviour
     public Text currentTimeText;
     public Text currentBreakTimeText;
 
+
+    public GameObject pomodoroPanel;
+    public GameObject timerPanel;
     public GameObject pauseButton;
     public GameObject stopButton;
     public GameObject currentTimeTextObj;
     public GameObject productiveTimeText;
     public GameObject currentBreakTimeTextObj;
     public GameObject currentBreakTimeObj;
+    public GameObject navigationBar;
 
 
     // Start is called before the first frame update
@@ -47,7 +51,7 @@ public class Timer : MonoBehaviour
                 timerDone = true;
                 Start();
                 hideObjects(productiveTimeText, currentTimeTextObj ,pauseButton, stopButton );
-                showObjects(currentBreakTimeTextObj, currentBreakTimeObj);
+                showObjectsDuringBreak(currentBreakTimeTextObj, currentBreakTimeObj,navigationBar);
                 Debug.Log("Timer finished!");
 
             }
@@ -63,6 +67,7 @@ public class Timer : MonoBehaviour
             {
                 timerDone = false;
                 Debug.Log("Break Time finished");
+                stateAfterBreak(currentBreakTimeObj, currentBreakTimeTextObj, pomodoroPanel, timerPanel);
             }
             TimeSpan breakTime = TimeSpan.FromSeconds(currentBreakTime);
         currentBreakTimeText.text = breakTime.Minutes.ToString() + ":" + breakTime.Seconds.ToString();
@@ -111,9 +116,18 @@ public class Timer : MonoBehaviour
         obj4.SetActive(false);
     }
 
-    public void showObjects(GameObject obj1, GameObject obj2){
+    public void showObjectsDuringBreak(GameObject obj1, GameObject obj2,GameObject obj3){
         obj1.SetActive(true);
-        obj2.SetActive(true);   
+        obj2.SetActive(true);
+        obj3.SetActive(true);      
+    }
+
+    public void stateAfterBreak(GameObject obj1, GameObject obj2, GameObject obj3, GameObject obj4){
+        obj1.SetActive(false);
+        obj2.SetActive(false);
+        obj3.SetActive(false);
+        obj4.SetActive(true);
+        
     }
 
 
