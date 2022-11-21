@@ -46,6 +46,7 @@ public class Timer : MonoBehaviour
             currentTime = currentTime - Time.deltaTime;
             if (currentTime <= 0)
             {
+                
                 timerActive = false;
                 //Start();
                 timerDone = true;
