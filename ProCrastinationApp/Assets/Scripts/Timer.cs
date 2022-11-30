@@ -4,9 +4,17 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 
+
 public class Timer : MonoBehaviour
 {
+    
+    
+
     bool timerActive = false;
+
+    bool collectedReward = false;
+
+    bool sendNotification = false;
 
     bool timerDone = false;
     public AudioSource Tick;
@@ -20,7 +28,6 @@ public class Timer : MonoBehaviour
     public Text currentTimeText;
     public Text currentBreakTimeText;
 
-
     public GameObject pomodoroPanel;
     public GameObject timerPanel;
     public GameObject pauseButton;
@@ -31,11 +38,26 @@ public class Timer : MonoBehaviour
     public GameObject currentBreakTimeObj;
     public GameObject navigationBar;
 
+    public GameObject RewardButton;
+
+    public GameObject LevelBar;
+
+    public GameObject ProgressBar;
+    TimerDoneNotification notificationManager;
+
+    
+
 
     // Start is called before the first frame update
     void Start()
     {
         currentBreakTime = (int)breakTimeSlider.value * 60;
+        
+        
+        
+        
+        
+        
     }
 
     // Update is called once per frame
@@ -44,16 +66,25 @@ public class Timer : MonoBehaviour
         if (timerActive == true)
         {
             currentTime = currentTime - Time.deltaTime;
+            //currentTime = _timerMicroserviceClient.CountTimeDown(currentTime);
+             //_timerMicroserviceClient.CountTimeDown(currentTime); 
             if (currentTime <= 0)
             {
-                
+               
                 timerActive = false;
-                //Start();
                 timerDone = true;
                 Start();
                 hideObjects(productiveTimeText, currentTimeTextObj ,pauseButton, stopButton );
                 showObjectsDuringBreak(currentBreakTimeTextObj, currentBreakTimeObj,navigationBar);
                 Debug.Log("Timer finished!");
+
+                if(sendNotification == false){
+                    
+                sendingMessage();
+                }
+                //sendNotification = false;
+                
+                
 
             }
         }
@@ -64,11 +95,22 @@ public class Timer : MonoBehaviour
         if (timerDone == true)
         {
             currentBreakTime = currentBreakTime - Time.deltaTime;
+            if(collectedReward == false)
+            {
+            collectedReward = true;
+            RewardButton.SetActive(true);
+            }
+            LevelBar.SetActive(true);
+            ProgressBar.SetActive(true);
             if (currentBreakTime <= 0)
             {
+                LevelBar.SetActive(false);
+                RewardButton.SetActive(false);
+                ProgressBar.SetActive(false);
                 timerDone = false;
                 Debug.Log("Break Time finished");
                 stateAfterBreak(currentBreakTimeObj, currentBreakTimeTextObj, pomodoroPanel, timerPanel);
+                collectedReward = false;
             }
             TimeSpan breakTime = TimeSpan.FromSeconds(currentBreakTime);
         currentBreakTimeText.text = breakTime.Minutes.ToString() + ":" + breakTime.Seconds.ToString();
@@ -83,13 +125,21 @@ public class Timer : MonoBehaviour
         if (sessionTime.value >= 1)
         {
             timerActive = true;
-            currentTime = (int)sessionTime.value * 60;
+            currentTime = (int)sessionTime.value * 1;
         }
         else
         {
             timerActive = true;
             currentTime = 1 * 60;
         }
+    }
+
+    public void sendingMessage(){
+        if(sendNotification == false){
+                    sendNotification = true;
+                    notificationManager = GameObject.FindGameObjectWithTag("NotificationTag").GetComponent<TimerDoneNotification>();
+                    notificationManager.notificationDone();
+                }
     }
 
     public void ResumeTimer()
@@ -131,7 +181,17 @@ public class Timer : MonoBehaviour
         
     }
 
+   /*  private async void SetupBeamable()
+   {
+    //await context.OnReady;
+    var context = BeamContext.Default;
 
+    _timerMicroserviceClient = context.Microservices().TimerMicroservice();
+     
+    
+   } */
+
+    
 
 
 

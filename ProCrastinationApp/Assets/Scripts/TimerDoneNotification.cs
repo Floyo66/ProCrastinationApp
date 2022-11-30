@@ -4,12 +4,21 @@ using Unity.Notifications.Android;
 using UnityEngine;
 using UnityEngine.Android;
 
-public class NotificationManager : MonoBehaviour
+public class TimerDoneNotification : MonoBehaviour
 {
     // Start is called before the first frame update
     void Start()
     {
+        
+    }
 
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
+
+     public void notificationDone(){
         AndroidNotificationCenter.CancelAllDisplayedNotifications();
 
         var channel = new AndroidNotificationChannel()
@@ -24,9 +33,9 @@ public class NotificationManager : MonoBehaviour
         
 
         var notification = new AndroidNotification();
-        notification.Title = "You know it is time to be productive!📚";
-        notification.Text = "Start the timer now and make progress.";
-        notification.FireTime = System.DateTime.Now.AddSeconds(5);
+        notification.Title = "Your task is finished!📚";
+        notification.Text = "Well done!";
+        notification.FireTime = System.DateTime.Now.AddSeconds(1);
 
         var id = AndroidNotificationCenter.SendNotification(notification, "channel_id");
 
@@ -36,38 +45,6 @@ public class NotificationManager : MonoBehaviour
             AndroidNotificationCenter.SendNotification(notification, "channel_id");
             
         } 
-
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
-    //Starting at Android 8.0 all notifications must be assigned to a notification channel
     
-    
-
-    //Starting at Android 13.0 notifications can not be posted without permission.
-    public void RequestPermissionNotification()
-    {
-        if (!Permission.HasUserAuthorizedPermission("android.permission.POST_NOTIFICATIONS"))
-        {
-            Permission.RequestUserPermission("android.permission.POST_NOTIFICATIONS");
-        }
-    }
-
-    //Text notification
-    
-
-    
-
-
-
-
-
-
-
-
 }
