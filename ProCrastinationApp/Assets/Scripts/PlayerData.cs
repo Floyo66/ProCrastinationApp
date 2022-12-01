@@ -1,7 +1,8 @@
 using System;
+using System.Runtime.Serialization;
 using UnityEngine;
 
-[Serializeable]
+[System.Serializable]
 public struct PlayerData
 {
     public string Name;
