@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class LoadSceneforPlayerSaveState : MonoBehaviour
 {
@@ -17,7 +18,7 @@ public class LoadSceneforPlayerSaveState : MonoBehaviour
         }
     }
 
-    private IENumerator LoadSceneCoroutine() {
+    private IEnumerator LoadSceneCoroutine() {
         var saveExistsTask = _playerSaveManager.SaveExists();
         yield return new WaitUntil(() => saveExistsTask.IsCompleted);
 

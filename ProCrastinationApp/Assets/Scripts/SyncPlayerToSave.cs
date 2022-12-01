@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,7 +12,7 @@ public class SyncPlayerToSave : MonoBehaviour
         _playerSaveManager = FindObjectOfType<PlayerSaveManager>();
     }
 
-    private IENumerator Start() {
+    private IEnumerator Start() {
         var playerDataTask = _playerSaveManager.LoadPlayer();
         yield return new WaitUntil(() => playerDataTask.IsCompleted);
         var playerData = playerDataTask.Result;
@@ -20,6 +21,7 @@ public class SyncPlayerToSave : MonoBehaviour
         }
         _player.OnPlayerUpdated.AddListener(HandlePlayerUpdated);
     }
+
 
     private void HandlePlayerUpdated() {
         _playerSaveManager.SavePlayer(_player.PlayerData);
