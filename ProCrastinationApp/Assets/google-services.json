@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "960653929167",
+    "project_id": "proc-rastinationapp",
+    "storage_bucket": "proc-rastinationapp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:960653929167:android:f9711f62ec5846693b65ba",
+        "android_client_info": {
+          "package_name": "com.DefaultCompany.com.unity.template.mobile2D"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "960653929167-ch3m8rpoeqi8hj4bgri2vt7uqarink3e.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAWWx-FYPsc1KoKjcdVqdkB8T24ywELLGI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "960653929167-ch3m8rpoeqi8hj4bgri2vt7uqarink3e.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
