@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "448942402746",
+    "firebase_url": "https://procrastination-app-f31a3-default-rtdb.europe-west1.firebasedatabase.app/",
+    "project_id": "procrastination-app-f31a3",
+    "storage_bucket": "procrastination-app-f31a3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:448942402746:android:005fe96ab3a11bd2d32683",
+        "android_client_info": {
+          "package_name": "com.ProCrastination.ProCrastinationApp.test"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "448942402746-t61bb4qlh1j8n5od3jceehtsr76s7674.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDT3axWECrSqrxydAOsmTVHcn5Df2Mrbo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "448942402746-t61bb4qlh1j8n5od3jceehtsr76s7674.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
