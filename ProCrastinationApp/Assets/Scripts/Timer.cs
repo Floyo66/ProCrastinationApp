@@ -2,11 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Networking;
 using System;
 
 public class Timer : MonoBehaviour
 {
     bool timerActive = false;
+
+    bool sendNotification = false;
 
     bool timerDone = false;
     public AudioSource Tick;
@@ -20,7 +23,6 @@ public class Timer : MonoBehaviour
     public Text currentTimeText;
     public Text currentBreakTimeText;
 
-
     public GameObject pomodoroPanel;
     public GameObject timerPanel;
     public GameObject pauseButton;
@@ -30,12 +32,27 @@ public class Timer : MonoBehaviour
     public GameObject currentBreakTimeTextObj;
     public GameObject currentBreakTimeObj;
     public GameObject navigationBar;
+    TimerDoneNotification notificationManager;
 
+    Timer_C timerTest;
+
+
+
+
+    public string getUrl = "localhost:3000/timer";
+    public string postUrl = "localhost:3000/timer/create";
+    public string url;
+
+    float probe;
 
     // Start is called before the first frame update
     void Start()
     {
+        //StartCoroutine(Get(url));
+        //currentTime = timerTest.getTime_session();
+         //Debug.Log("THIS IS MY CURRENT TIME STAAAART: " + currentTime);
         currentBreakTime = (int)breakTimeSlider.value * 60;
+        
     }
 
     // Update is called once per frame
@@ -43,16 +60,28 @@ public class Timer : MonoBehaviour
     {
         if (timerActive == true)
         {
-            currentTime = currentTime - Time.deltaTime;
+            //StartCoroutine(Get(url));
+            
+            
+            currentTime = (currentTime - Time.deltaTime);
+            //Debug.Log("THIS IS MY CURRENT TIME: " + currentTime);
             if (currentTime <= 0)
             {
+                
                 timerActive = false;
-                //Start();
                 timerDone = true;
                 Start();
                 hideObjects(productiveTimeText, currentTimeTextObj ,pauseButton, stopButton );
                 showObjectsDuringBreak(currentBreakTimeTextObj, currentBreakTimeObj,navigationBar);
                 Debug.Log("Timer finished!");
+
+                if(sendNotification == false){
+                    
+                sendingMessage();
+                }
+                //sendNotification = false;
+                
+                
 
             }
         }
@@ -82,13 +111,21 @@ public class Timer : MonoBehaviour
         if (sessionTime.value >= 1)
         {
             timerActive = true;
-            currentTime = (int)sessionTime.value * 60;
+            currentTime = (int)sessionTime.value * 1;
         }
         else
         {
             timerActive = true;
             currentTime = 1 * 60;
         }
+    }
+
+    public void sendingMessage(){
+        if(sendNotification == false){
+                    sendNotification = true;
+                    notificationManager = GameObject.FindGameObjectWithTag("NotificationTag").GetComponent<TimerDoneNotification>();
+                    notificationManager.notificationDone();
+                }
     }
 
     public void ResumeTimer()
@@ -129,6 +166,49 @@ public class Timer : MonoBehaviour
         obj4.SetActive(true);
         
     }
+
+    //IEnumerator enables async-like functinality in Unity.
+    public IEnumerator Get(string url)
+    {
+        using(UnityWebRequest www = UnityWebRequest.Get(url)){
+            yield return www.SendWebRequest();
+
+            if (www.result == UnityWebRequest.Result.ConnectionError)
+            {
+                Debug.Log(www.error);
+            }
+            else
+            {
+                if (www.isDone)
+                {
+                
+                    // handle the result
+                    var result = System.Text.Encoding.UTF8.GetString(www.downloadHandler.data);
+                    var timeValue = JsonUtility.FromJson<Timer_C>(result);
+
+                    
+
+                    timerTest.setTimerValue(timeValue.time_session);
+
+                    Debug.Log("Timer_session = " + timeValue.time_session);
+                    Debug.Log("time_Break = " + timeValue.time_break);
+                   // Debug.Log(probe);
+                    yield return (float)probe;
+                    
+
+
+                    //Debug.Log(result);
+                }
+                else
+                {
+                    //handle the problem
+                    Debug.Log("Error! data couldn't get.");
+                }
+            }
+        }
+
+    }
+    
 
 
 
