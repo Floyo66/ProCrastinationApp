@@ -63,7 +63,7 @@ public class NotificationManager : MonoBehaviour
         }
     }
 
-    
+     //IEnumerator enables async-like functinality in Unity.
     public IEnumerator Get(string url)
     {
         using (UnityWebRequest www = UnityWebRequest.Get(url))
@@ -82,11 +82,7 @@ public class NotificationManager : MonoBehaviour
                     // handle the result
                     var result = System.Text.Encoding.UTF8.GetString(www.downloadHandler.data);
                     var notify = JsonUtility.FromJson<Notification_C>(result);
-
-
-
                     AndroidNotificationCenter.CancelAllDisplayedNotifications();
-
                     var channel = new AndroidNotificationChannel()
                     {
 
@@ -97,18 +93,11 @@ public class NotificationManager : MonoBehaviour
                     };
                     AndroidNotificationCenter.RegisterNotificationChannel(channel);
 
-                    string text1;
-                    string text2;
-
-                    text1 = notify.title_1;
-                    text2 = notify.title_2;
-                    Debug.Log("text1=" + text1);
-
                     var notification = new AndroidNotification();
                     Debug.Log(notify.title_1);
                     Debug.Log(notify.title_2);
-                    notification.Title = text1;
-                    notification.Text = text2;
+                    notification.Title = notify.title_1;
+                    notification.Text = notify.title_2;
                     notification.FireTime = System.DateTime.Now.AddSeconds(1);
 
                     var id = AndroidNotificationCenter.SendNotification(notification, "channel_id");
@@ -119,10 +108,6 @@ public class NotificationManager : MonoBehaviour
                         AndroidNotificationCenter.SendNotification(notification, "channel_id");
 
                     }
-
-
-
-
                 }
                 else
                 {

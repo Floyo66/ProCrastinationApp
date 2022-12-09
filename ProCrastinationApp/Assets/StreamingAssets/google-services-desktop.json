@@ -1,7 +1,7 @@
 {
   "project_info": {
     "project_number": "448942402746",
-    "firebase_url": "https://procrastination-app-f31a3-default-rtdb.europe-west1.firebasedatabase.app/",
+    "firebase_url": "https://procrastination-app-f31a3-default-rtdb.europe-west1.firebasedatabase.app",
     "project_id": "procrastination-app-f31a3",
     "storage_bucket": "procrastination-app-f31a3.appspot.com"
   },
@@ -14,6 +14,14 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "448942402746-2fdv981mmfqvbls4s92fvhkqs3gp49h7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ProCrastination.ProCrastinationApp.test",
+            "certificate_hash": "280fb4a5d6843a8d14ee50e1b3158b1d11a75ee0"
+          }
+        },
         {
           "client_id": "448942402746-t61bb4qlh1j8n5od3jceehtsr76s7674.apps.googleusercontent.com",
           "client_type": 3
@@ -30,6 +38,13 @@
             {
               "client_id": "448942402746-t61bb4qlh1j8n5od3jceehtsr76s7674.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "448942402746-rhfih7hccu3ejne9k918e2v956oc34jn.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.ProCrastination.ProCrastinationApp.test.Jonah"
+              }
             }
           ]
         }
