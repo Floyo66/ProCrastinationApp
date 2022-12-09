@@ -26,7 +26,7 @@ public class FirebaseAuthManager : MonoBehaviour
     public InputField passwordRegisterField;
     public InputField confirmPasswordRegisterField;
 
-    private void Awake()
+    /* private void Awake()
     {
         // Check that all of the necessary dependencies for firebase are present on the system
         FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task =>
@@ -42,6 +42,30 @@ public class FirebaseAuthManager : MonoBehaviour
                 Debug.LogError("Could not resolve all firebase dependencies: " + dependencyStatus);
             }
         });
+    } */
+
+    private void Start()
+    {
+        StartCoroutine(CheckAndFixDependenciesAsync());
+    }
+    private IEnumerator CheckAndFixDependenciesAsync()
+    {
+        var dependencyTask = FirebaseApp.CheckAndFixDependenciesAsync();
+
+        yield return new WaitUntil(() => dependencyTask.IsCompleted);
+
+        dependencyStatus = dependencyTask.Result;
+
+            if (dependencyStatus == DependencyStatus.Available)
+            {
+                InitializeFirebase();
+                yield return new WaitForEndOfFrame();
+                StartCoroutine(CheckForAutoLogin());
+            }
+            else
+            {
+                Debug.LogError("Could not resolve all firebase dependencies: " + dependencyStatus);
+            }
     }
 
     void InitializeFirebase()
@@ -51,6 +75,35 @@ public class FirebaseAuthManager : MonoBehaviour
 
         auth.StateChanged += AuthStateChanged;
         AuthStateChanged(this, null);
+    }
+
+    private IEnumerator CheckForAutoLogin()
+    {
+        if(user != null)
+        {
+            var reloadUserTask = user.ReloadAsync();
+
+            yield return new WaitUntil(() => reloadUserTask.IsCompleted);
+
+            AutoLogin();
+        }
+        else
+        {
+            UIManager.Instance.OpenLoginPanel();
+        }
+    }
+
+    private void AutoLogin()
+    {
+        if(user != null)
+        {
+            References.userName = user.DisplayName;
+            UnityEngine.SceneManagement.SceneManager.LoadScene("SampleScene 1");
+        }
+        else
+        {
+            UIManager.Instance.OpenLoginPanel();
+        }
     }
 
     // Track state changes of the auth object.
