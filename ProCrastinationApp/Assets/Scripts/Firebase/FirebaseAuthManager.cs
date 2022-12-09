@@ -116,6 +116,8 @@ public class FirebaseAuthManager : MonoBehaviour
             if (!signedIn && user != null)
             {
                 Debug.Log("Signed out " + user.UserId);
+                
+                
             }
 
             user = auth.CurrentUser;
@@ -126,6 +128,15 @@ public class FirebaseAuthManager : MonoBehaviour
             }
         }
     }
+
+
+    public void Logout()
+    {
+        auth.SignOut();
+        UnityEngine.SceneManagement.SceneManager.LoadScene("FirebaseLogin");
+    }
+   
+
 
     public void Login()
     {
@@ -176,9 +187,12 @@ public class FirebaseAuthManager : MonoBehaviour
             Debug.LogFormat("{0} You Are Successfully Logged In", user.DisplayName);
 
             References.userName = user.DisplayName;
+            yield return new WaitForEndOfFrame();
             UnityEngine.SceneManagement.SceneManager.LoadScene("SampleScene 1");
         }
     }
+
+   
 
     public void Register()
     {
