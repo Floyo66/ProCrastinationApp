@@ -26,7 +26,8 @@ public class DBInteraction : MonoBehaviour
     string json = JsonUtility.ToJson(newUser);
 
     Reference.Child("users").Child(userId).SetRawJsonValueAsync(json);
-    }  
+    }
+ 
 }
 
 
