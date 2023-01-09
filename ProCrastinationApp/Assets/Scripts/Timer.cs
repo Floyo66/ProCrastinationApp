@@ -17,7 +17,7 @@ public class Timer : MonoBehaviour
     float currentBreakTime;
     public int startMinutes;
 
-    public Slider sessionTime;
+    public float sessionTime;
     public Slider breakTimeSlider;
 
     public Text currentTimeText;
@@ -34,7 +34,7 @@ public class Timer : MonoBehaviour
     public GameObject navigationBar;
     TimerDoneNotification notificationManager;
 
-    Timer_C timerTest;
+    public  Timer_C timerTest = new Timer_C();
 
 
 
@@ -43,37 +43,59 @@ public class Timer : MonoBehaviour
     public string postUrl = "localhost:3000/timer/create";
     public string url;
 
-    float probe;
+
+
+    public float probe;
+    public bool firstCall = false;
+    internal object user;
+
+    public bool startTimer = false;
 
     // Start is called before the first frame update
     void Start()
     {
-        //StartCoroutine(Get(url));
+        
+        //sessionTime.value = timerTest.getTime_session();
         //currentTime = timerTest.getTime_session();
          //Debug.Log("THIS IS MY CURRENT TIME STAAAART: " + currentTime);
         currentBreakTime = (int)breakTimeSlider.value * 60;
+        //currentTime = timerTest.getTime_session();
+         StartCoroutine(Get(url));
         
     }
 
     // Update is called once per frame
-    void Update()
+     void Update()
     {
-        if (timerActive == true)
+        if(firstCall)
         {
-            //StartCoroutine(Get(url));
+            Start();
+            firstCall = false;
+            startTimer = true;
             
+           
+        }
+        //Debug.Log("Session Time Update: " + timerTest.getTime_session());
+        if (timerActive == true && startTimer == true)
+        {
+            
+            Debug.Log("CurrentTime Value: " + currentTime);
             
             currentTime = (currentTime - Time.deltaTime);
+
+            //timerTest.setTimerValue(currentTime);
             //Debug.Log("THIS IS MY CURRENT TIME: " + currentTime);
             if (currentTime <= 0)
             {
                 
                 timerActive = false;
                 timerDone = true;
-                Start();
+                //startTimer = false;
+                //Start();
                 hideObjects(productiveTimeText, currentTimeTextObj ,pauseButton, stopButton );
                 showObjectsDuringBreak(currentBreakTimeTextObj, currentBreakTimeObj,navigationBar);
                 Debug.Log("Timer finished!");
+                
 
                 if(sendNotification == false){
                     
@@ -91,15 +113,21 @@ public class Timer : MonoBehaviour
 
         if (timerDone == true)
         {
+            firstCall = false;
+            
             currentBreakTime = currentBreakTime - Time.deltaTime;
             if (currentBreakTime <= 0)
             {
                 timerDone = false;
+                
                 Debug.Log("Break Time finished");
+                //firstCall = true;
+                
+                
                 stateAfterBreak(currentBreakTimeObj, currentBreakTimeTextObj, pomodoroPanel, timerPanel);
             }
             TimeSpan breakTime = TimeSpan.FromSeconds(currentBreakTime);
-        currentBreakTimeText.text = breakTime.Minutes.ToString() + ":" + breakTime.Seconds.ToString();
+            currentBreakTimeText.text = breakTime.Minutes.ToString() + ":" + breakTime.Seconds.ToString();
         }
 
         
@@ -108,6 +136,15 @@ public class Timer : MonoBehaviour
 
     public void StartTimer()
     {
+        
+        firstCall = true;
+
+        //StartCoroutine(Get(url));
+
+        /* StartCoroutine(Get(url));
+        sessionTime.value = timerTest.getTime_session();
+        Debug.Log(timerTest.getTime_session());
+
         if (sessionTime.value >= 1)
         {
             timerActive = true;
@@ -117,7 +154,9 @@ public class Timer : MonoBehaviour
         {
             timerActive = true;
             currentTime = 1 * 60;
-        }
+        } */
+
+
     }
 
     public void sendingMessage(){
@@ -135,8 +174,9 @@ public class Timer : MonoBehaviour
 
     public void StopTimer()
     {
+        
         timerActive = false;
-        Start();
+        firstCall = true;
     }
 
     public void PauseTimer()
@@ -185,17 +225,27 @@ public class Timer : MonoBehaviour
                     // handle the result
                     var result = System.Text.Encoding.UTF8.GetString(www.downloadHandler.data);
                     var timeValue = JsonUtility.FromJson<Timer_C>(result);
+                    
+                    float timesession = float.Parse(timeValue.time_session.ToString());
 
+                    timerTest.setTimerValue(timesession);
+                    sessionTime = timerTest.getTime_session();
+                    currentTime = timerTest.getTime_session();
                     
 
-                    timerTest.setTimerValue(timeValue.time_session);
+                   // float TestTime = timesession - Time.deltaTime;
+                    //Debug.Log(TestTime);
 
-                    Debug.Log("Timer_session = " + timeValue.time_session);
-                    Debug.Log("time_Break = " + timeValue.time_break);
+                    //Debug.Log(timerTest.getTime_session());
+                    //timerTest.setTimerValue(timeValue.time_session);
+
+                    //Debug.Log("Timer_session = " + timeValue.time_session);
+                    //Debug.Log("time_Break = " + timeValue.time_break);
                    // Debug.Log(probe);
-                    yield return (float)probe;
-                    
+                    yield return timesession;
+                    Debug.Log("Session Time: " + currentTime);
 
+                    timerActive = true;
 
                     //Debug.Log(result);
                 }
@@ -208,6 +258,8 @@ public class Timer : MonoBehaviour
         }
 
     }
+
+    
     
 
 
