@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Firebase;
 using Firebase.Auth;
+using Firebase.Database;
 
 public class FirebaseAuthManager : MonoBehaviour
 {
@@ -11,6 +12,11 @@ public class FirebaseAuthManager : MonoBehaviour
     public DependencyStatus dependencyStatus;
     public FirebaseAuth auth;
     public FirebaseUser user;
+
+    [Header("Database")]
+    public DatabaseReference Reference;
+    private string userId;
+    [Space]
 
     // Login Variables
     [Space]
@@ -46,6 +52,10 @@ public class FirebaseAuthManager : MonoBehaviour
 
     private void Start()
     {
+         // Create new User ID
+        userId = SystemInfo.deviceUniqueIdentifier;
+        // Get the root reference location of the database.
+        Reference = FirebaseDatabase.DefaultInstance.RootReference;
         StartCoroutine(CheckAndFixDependenciesAsync());
     }
     private IEnumerator CheckAndFixDependenciesAsync()
@@ -215,7 +225,15 @@ public class FirebaseAuthManager : MonoBehaviour
         }
         else
         {
+            User newUser = new User(1,0,nameRegisterField.text,0,0);
+            
+            string json = JsonUtility.ToJson(newUser);
+
+            Reference.Child("users").Child(userId).SetRawJsonValueAsync(json);
+
             var registerTask = auth.CreateUserWithEmailAndPasswordAsync(email, password);
+            
+            //TODO
 
             yield return new WaitUntil(() => registerTask.IsCompleted);
 
