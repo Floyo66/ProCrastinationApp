@@ -3293,9 +3293,10 @@ MonoBehaviour:
     time_break: 0
   getUrl: localhost:3000/timer
   postUrl: localhost:3000/timer/create
-  url: 
+  url: http://localhost:3000/timer
   probe: 0
   firstCall: 0
+  startTimer: 0
 --- !u!114 &951796542
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4658,9 +4659,10 @@ MonoBehaviour:
     time_break: 0
   getUrl: localhost:3000/timer
   postUrl: localhost:3000/timer/create
-  url: localhost:3000/getTime
+  url: http://localhost:3000/idk
   probe: 0
   firstCall: 0
+  startTimer: 0
 --- !u!114 &1346581604
 MonoBehaviour:
   m_ObjectHideFlags: 0

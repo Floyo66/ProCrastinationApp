@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
+using Firebase;
+using Firebase.Database;
+using Firebase.Extensions;
 using System;
 
 public class Timer : MonoBehaviour
@@ -17,7 +20,7 @@ public class Timer : MonoBehaviour
     float currentBreakTime;
     public int startMinutes;
 
-    public float sessionTime;
+    public Slider sessionTime;
     public Slider breakTimeSlider;
 
     public Text currentTimeText;
@@ -36,23 +39,278 @@ public class Timer : MonoBehaviour
 
     public  Timer_C timerTest = new Timer_C();
 
-
-
-
-    public string getUrl = "localhost:3000/timer";
-    public string postUrl = "localhost:3000/timer/create";
     public string url;
 
 
+    //variables after backup
+    private string userId;
+    public float numberTime;
+    public DatabaseReference Reference;
+    
+    public float dbNumber;
 
-    public float probe;
-    public bool firstCall = false;
-    internal object user;
+    public float firstTimeNumber;
+    public float secondTimeNumber;
 
-    public bool startTimer = false;
+  
+
+
+
+    void Start()
+    {
+        // Create new User ID
+        userId = SystemInfo.deviceUniqueIdentifier;
+        // Get the root reference location of the database.
+        Reference = FirebaseDatabase.DefaultInstance.RootReference;
+
+        Reference.Child("users").Child(userId).GetValueAsync().ContinueWithOnMainThread(task => {
+            if (task.IsFaulted)
+            {
+                Debug.Log(task.Exception.Message);
+            }
+                else if (task.IsCompleted)
+                {
+                    DataSnapshot snapshot = task.Result;
+            
+                    Reference.Child("users")
+                        .Child(userId)
+                        .Child("taskTime")
+                        .SetValueAsync(currentTime.ToString());
+
+                    dbNumber = float.Parse(snapshot.Child("taskTime").Value.ToString());
+
+                    Debug.Log("DB Number" + dbNumber);
+                 
+                }
+       });
+
+       StartCoroutine(Get(url));
+
+      
+
+
+    }
+
+    void Update()
+    {
+        StartCoroutine(Get2(url));
+        if(CheckIfTimeDone() == true){
+            Debug.Log("TIME DONE");
+        }else{
+            Debug.Log("Time not done");
+           
+        }
+
+    }
+
+    public Boolean CheckIfTimeDone()
+    {
+        float result = (secondTimeNumber - firstTimeNumber)/60;
+
+        
+        
+        
+       
+    }
+
+
+
+
+
+
+    public void StartTimer()
+    {
+        if (sessionTime.value >= 1)
+        {
+            timerActive = true;
+            currentTime = (int)sessionTime.value * 1;
+
+            Debug.Log(currentTime);
+        }
+        else
+        {
+            timerActive = true;
+            currentTime = 1 * 60;
+            Debug.Log(currentTime);
+        }
+    }
+
+//IEnumerator enables async-like functinality in Unity.
+    public IEnumerator Get(string url)
+    {
+        using(UnityWebRequest www = UnityWebRequest.Get(url)){
+            yield return www.SendWebRequest();
+
+            if (www.result == UnityWebRequest.Result.ConnectionError)
+            {
+                Debug.Log(www.error);
+            }
+            else
+            {
+                if (www.isDone)
+                {
+                
+                    // handle the result
+                    var result = System.Text.Encoding.UTF8.GetString(www.downloadHandler.data);
+                    var timeValue = JsonUtility.FromJson<Timer_C>(result);
+                    
+                     firstTimeNumber = float.Parse(timeValue.number.ToString());
+
+                    //timerTest.setTimerValue(timesession);
+                    //numberTime = timerTest.getTime_session();
+                    
+
+                    
+
+                    
+
+                    Debug.Log("FirstTimeNumber: " + firstTimeNumber);
+                    //Debug.Log("time_Break = " + timeValue.nothing);
+                   // Debug.Log(probe);
+                    yield return firstTimeNumber;
+
+
+                    //Debug.Log(result);
+                }
+                else
+                {
+                    //handle the problem
+                    Debug.Log("Error! data couldn't get.");
+                }
+            }
+        }
+
+    }
+
+    public IEnumerator Get2(string url)
+    {
+        using(UnityWebRequest www = UnityWebRequest.Get(url)){
+            yield return www.SendWebRequest();
+
+            if (www.result == UnityWebRequest.Result.ConnectionError)
+            {
+                Debug.Log(www.error);
+            }
+            else
+            {
+                if (www.isDone)
+                {
+                
+                    // handle the result
+                    var result = System.Text.Encoding.UTF8.GetString(www.downloadHandler.data);
+                    var timeValue = JsonUtility.FromJson<Timer_C>(result);
+                    
+                     secondTimeNumber = float.Parse(timeValue.number.ToString());
+
+                    //timerTest.setTimerValue(timesession);
+                    //numberTime = timerTest.getTime_session();
+                    
+
+                    
+
+                    
+
+                    Debug.Log("Timer_session = " + secondTimeNumber);
+                    //Debug.Log("time_Break = " + timeValue.nothing);
+                   // Debug.Log(probe);
+                    yield return secondTimeNumber;
+
+
+                    //Debug.Log(result);
+                }
+                else
+                {
+                    //handle the problem
+                    Debug.Log("Error! data couldn't get.");
+                }
+            }
+        }
+
+    }
+
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // Start is called before the first frame update
-    void Start()
+    /* void Start()
     {
         
         //sessionTime.value = timerTest.getTime_session();
@@ -113,6 +371,7 @@ public class Timer : MonoBehaviour
 
         if (timerDone == true)
         {
+           
             firstCall = false;
             
             currentBreakTime = currentBreakTime - Time.deltaTime;
@@ -154,7 +413,7 @@ public class Timer : MonoBehaviour
         {
             timerActive = true;
             currentTime = 1 * 60;
-        } */
+        } 
 
 
     }
@@ -258,12 +517,12 @@ public class Timer : MonoBehaviour
         }
 
     }
-
+ */
     
     
 
 
 
 
-
+    
 }
