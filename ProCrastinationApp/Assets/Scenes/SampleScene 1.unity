@@ -2688,7 +2688,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &673725823
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2801,7 +2801,7 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 1
+          m_BoolArgument: 0
         m_CallState: 2
       - m_Target: {fileID: 1424594280}
         m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
@@ -2813,7 +2813,7 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 1
+          m_BoolArgument: 0
         m_CallState: 2
       - m_Target: {fileID: 673725822}
         m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
@@ -3274,29 +3274,34 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Tick: {fileID: 0}
+  displayTime: 0
   startMinutes: 0
-  sessionTime: 0
+  sessionTime: {fileID: 0}
   breakTimeSlider: {fileID: 0}
   currentTimeText: {fileID: 0}
   currentBreakTimeText: {fileID: 0}
   pomodoroPanel: {fileID: 0}
   timerPanel: {fileID: 0}
-  pauseButton: {fileID: 0}
   stopButton: {fileID: 0}
   currentTimeTextObj: {fileID: 0}
   productiveTimeText: {fileID: 0}
   currentBreakTimeTextObj: {fileID: 0}
   currentBreakTimeObj: {fileID: 0}
   navigationBar: {fileID: 0}
+  topNav: {fileID: 0}
   timerTest:
-    time_session: 0
-    time_break: 0
-  getUrl: localhost:3000/timer
-  postUrl: localhost:3000/timer/create
+    number: 0
+    nothing: 0
   url: http://localhost:3000/timer
-  probe: 0
-  firstCall: 0
-  startTimer: 0
+  numberTime: 0
+  dbNumber: 0
+  firstTimeNumber: 0
+  secondTimeNumber: 0
+  timerDone: 0
+  startIt: 0
+  checkDone: 0
+  callOnce: 0
+  runMc: 1
 --- !u!114 &951796542
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4640,29 +4645,34 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Tick: {fileID: 0}
+  displayTime: 0
   startMinutes: 0
-  sessionTime: 0
+  sessionTime: {fileID: 1102110437}
   breakTimeSlider: {fileID: 1937701956}
   currentTimeText: {fileID: 1247383651}
   currentBreakTimeText: {fileID: 2043946848}
   pomodoroPanel: {fileID: 1346581601}
   timerPanel: {fileID: 951796539}
-  pauseButton: {fileID: 673725822}
   stopButton: {fileID: 1211881309}
   currentTimeTextObj: {fileID: 1247383648}
   productiveTimeText: {fileID: 1719485482}
   currentBreakTimeTextObj: {fileID: 59594060}
   currentBreakTimeObj: {fileID: 2043946846}
   navigationBar: {fileID: 1424594280}
+  topNav: {fileID: 0}
   timerTest:
-    time_session: 0
-    time_break: 0
-  getUrl: localhost:3000/timer
-  postUrl: localhost:3000/timer/create
+    number: 0
+    nothing: 0
   url: http://localhost:3000/idk
-  probe: 0
-  firstCall: 0
-  startTimer: 0
+  numberTime: 0
+  dbNumber: 0
+  firstTimeNumber: 0
+  secondTimeNumber: 0
+  timerDone: 0
+  startIt: 0
+  checkDone: 0
+  callOnce: 0
+  runMc: 1
 --- !u!114 &1346581604
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6949,7 +6959,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &2102585332
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7053,7 +7063,7 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 1
+          m_BoolArgument: 0
         m_CallState: 2
 --- !u!114 &2102585334
 MonoBehaviour:
