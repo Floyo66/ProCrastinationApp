@@ -15,18 +15,18 @@ public class DBInteraction : MonoBehaviour
     public TMP_InputField Email;
 
     void Start() {
-        // Create new User ID
-        userId = SystemInfo.deviceUniqueIdentifier;
+    // Create new User ID
+    userId = SystemInfo.deviceUniqueIdentifier;
     // Get the root reference location of the database.
     Reference = FirebaseDatabase.DefaultInstance.RootReference;
     }
 
-    public void writeNewUser() {
+    /* public void writeNewUser() {
     User newUser = new User(Username.text, Email.text);
     string json = JsonUtility.ToJson(newUser);
 
     Reference.Child("users").Child(userId).SetRawJsonValueAsync(json);
-    }
+    } */
  
 }
 

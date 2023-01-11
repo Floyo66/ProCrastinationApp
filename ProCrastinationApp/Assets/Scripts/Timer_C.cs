@@ -6,21 +6,23 @@ using UnityEngine;
 [System.Serializable]
 public class Timer_C
 {
-    public float time_session;
-    public float time_break;
+    public float number;
+
+    public float nothing;
+   
 
 
 
-    public void setTimerValue(float time_session)
+     public void setTimerValue(float number)
     {
-        this.time_session = time_session;
+        this.number = number;
        
     }
 
-    public float getTime_session()
+     public float getTime_session()
     {
-        return time_session;
-    }
-
+        return number;
+    } 
+ 
 
 }
