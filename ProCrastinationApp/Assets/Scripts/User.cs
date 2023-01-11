@@ -11,19 +11,20 @@ public class User {
 
     public int level;
     public int exp;
-    public string useriD;
+
+    public int taskTime;
 
     /* public User(string username, string email) {
     this.username = username;
     this.email = email;    
     } */
 
-    public User(int level, int exp, string username, int gold, string useriD) {
+    public User(int level, int exp, string username, int gold, int taskTime) {
     this.level = level;
     this.exp = exp;
     this.username = username;
     this.gold = gold;
-    this.useriD = useriD;
+    this.taskTime = taskTime;
     }
 
     public int getLevel() {

@@ -4,7 +4,6 @@ using UnityEngine.UI;
 using Firebase;
 using Firebase.Auth;
 using Firebase.Database;
-using UnityEngine.Networking;
 
 public class FirebaseAuthManager : MonoBehaviour
 {
@@ -32,7 +31,6 @@ public class FirebaseAuthManager : MonoBehaviour
     public InputField emailRegisterField;
     public InputField passwordRegisterField;
     public InputField confirmPasswordRegisterField;
-    public string postUrl = "localhost:3000/user/register";
 
     /* private void Awake()
     {
@@ -208,51 +206,116 @@ public class FirebaseAuthManager : MonoBehaviour
 
     public void Register()
     {
-       
-        User newUser = new User(1,0,nameRegisterField.text,0,userId);
-        StartCoroutine(RegisterPost(postUrl, newUser, userId));
-
+        StartCoroutine(RegisterAsync(nameRegisterField.text, emailRegisterField.text, passwordRegisterField.text, confirmPasswordRegisterField.text));
     }
 
-     public IEnumerator RegisterPost(string url, User user, string userId)
+    private IEnumerator RegisterAsync(string name, string email, string password, string confirmPassword)
     {
-        var jsonData = JsonUtility.ToJson(user);
-        Debug.Log(jsonData);
-
-        using (UnityWebRequest www = UnityWebRequest.Post(url, jsonData))
+        if (name == "")
         {
-            www.SetRequestHeader("content-type", "application/json");
-            www.uploadHandler.contentType = "application/json";
-            www.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(jsonData));
-            yield return www.SendWebRequest();
+            Debug.LogError("Username is empty");
+        }
+        else if (email == "")
+        {
+            Debug.LogError("email field is empty");
+        }
+        else if (passwordRegisterField.text != confirmPasswordRegisterField.text)
+        {
+            Debug.LogError("Password does not match");
+        }
+        else
+        {
+            User newUser = new User(1,0,nameRegisterField.text,0,0);
+            
+            string json = JsonUtility.ToJson(newUser);
 
-            if (www.result == UnityWebRequest.Result.ConnectionError)
+            Reference.Child("users").Child(userId).SetRawJsonValueAsync(json);
+
+            var registerTask = auth.CreateUserWithEmailAndPasswordAsync(email, password);
+            
+            //TODO
+
+            yield return new WaitUntil(() => registerTask.IsCompleted);
+
+            if (registerTask.Exception != null)
             {
-                Debug.Log(www.error);
+                Debug.LogError(registerTask.Exception);
+
+                FirebaseException firebaseException = registerTask.Exception.GetBaseException() as FirebaseException;
+                AuthError authError = (AuthError)firebaseException.ErrorCode;
+
+                string failedMessage = "Registration Failed! Becuase ";
+                switch (authError)
+                {
+                    case AuthError.InvalidEmail:
+                        failedMessage += "Email is invalid";
+                        break;
+                    case AuthError.WrongPassword:
+                        failedMessage += "Wrong Password";
+                        break;
+                    case AuthError.MissingEmail:
+                        failedMessage += "Email is missing";
+                        break;
+                    case AuthError.MissingPassword:
+                        failedMessage += "Password is missing";
+                        break;
+                    default:
+                        failedMessage = "Registration Failed";
+                        break;
+                }
+
+                Debug.Log(failedMessage);
             }
             else
             {
-                if (www.isDone)
-                {
-                   
-                    // handle the result
-                    var result = System.Text.Encoding.UTF8.GetString(www.downloadHandler.data);
-                    result = "{\"result\":" + result + "}";
-                    var resultEnemyList = JsonHelper.FromJson<User>(result);
+                // Get The User After Registration Success
+                user = registerTask.Result;
 
-                    foreach (var item in resultEnemyList)
+                UserProfile userProfile = new UserProfile { DisplayName = name };
+
+                var updateProfileTask = user.UpdateUserProfileAsync(userProfile);
+
+                yield return new WaitUntil(() => updateProfileTask.IsCompleted);
+
+                if (updateProfileTask.Exception != null)
+                {
+                    // Delete the user if user update failed
+                    user.DeleteAsync();
+
+                    Debug.LogError(updateProfileTask.Exception);
+
+                    FirebaseException firebaseException = updateProfileTask.Exception.GetBaseException() as FirebaseException;
+                    AuthError authError = (AuthError)firebaseException.ErrorCode;
+
+
+                    string failedMessage = "Profile update Failed! Becuase ";
+                    switch (authError)
                     {
-                        //Debug.Log(item.username);
+                        case AuthError.InvalidEmail:
+                            failedMessage += "Email is invalid";
+                            break;
+                        case AuthError.WrongPassword:
+                            failedMessage += "Wrong Password";
+                            break;
+                        case AuthError.MissingEmail:
+                            failedMessage += "Email is missing";
+                            break;
+                        case AuthError.MissingPassword:
+                            failedMessage += "Password is missing";
+                            break;
+                        default:
+                            failedMessage = "Profile update Failed";
+                            break;
                     }
+
+                    Debug.Log(failedMessage);
                 }
                 else
                 {
-                    //handle the problem
-                    Debug.Log("Error! data couldn't get.");
+                    Debug.Log("Registration Sucessful Welcome " + user.DisplayName);
+                    UIManager.Instance.OpenLoginPanel();
                 }
             }
         }
     }
-
-   
 }

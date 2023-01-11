@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
+using Firebase;
+using Firebase.Database;
+using Firebase.Extensions;
 using System;
 
 public class Timer : MonoBehaviour
@@ -11,13 +14,13 @@ public class Timer : MonoBehaviour
 
     bool sendNotification = false;
 
-    bool timerDone = false;
+    
     public AudioSource Tick;
-    float currentTime;
+    public float displayTime;
     float currentBreakTime;
     public int startMinutes;
 
-    public float sessionTime;
+    public Slider sessionTime;
     public Slider breakTimeSlider;
 
     public Text currentTimeText;
@@ -25,35 +28,408 @@ public class Timer : MonoBehaviour
 
     public GameObject pomodoroPanel;
     public GameObject timerPanel;
-    public GameObject pauseButton;
+   
     public GameObject stopButton;
     public GameObject currentTimeTextObj;
     public GameObject productiveTimeText;
     public GameObject currentBreakTimeTextObj;
     public GameObject currentBreakTimeObj;
+
     public GameObject bottomNav;
+
     public GameObject topNav;
     TimerDoneNotification notificationManager;
 
     public  Timer_C timerTest = new Timer_C();
 
-
-
-
-    public string getUrl = "localhost:3000/timer";
-    public string postUrl = "localhost:3000/timer/create";
     public string url;
 
 
+    //variables after backup
+    private string userId;
+    public float numberTime;
+    public DatabaseReference Reference;
+    
+    public int dbNumber;
 
-    public float probe;
-    public bool firstCall = false;
-    internal object user;
+    public float firstTimeNumber;
+    public float secondTimeNumber;
 
-    public bool startTimer = false;
+    public bool timerDone = false;
+
+    public bool startIt = false;
+
+    public bool checkDone = false;
+
+    public bool callOnce = false;
+    public bool runMc = true;
+
+
+    void Start()
+    {
+        // Create new User ID
+        userId = SystemInfo.deviceUniqueIdentifier;
+        // Get the root reference location of the database.
+        Reference = FirebaseDatabase.DefaultInstance.RootReference;
+
+        Debug.Log("display Time: " + displayTime);
+        Debug.Log("slider time: " + sessionTime.value);
+
+        
+      // setDbNumber();
+      // StartCoroutine(Get(url));
+
+      
+
+
+    }
+
+
+    void Update()
+    {  
+        if(callOnce)
+        {
+            setDbNumber();
+            StartCoroutine(Get(url));
+            callOnce = false;
+        }
+
+        if(timerActive == true)
+        {
+            displayTime = displayTime - Time.deltaTime;
+
+            if(displayTime <= 0 && CheckIfTimeDone())
+            {
+                timerActive = false;
+                timerDone = true;
+                hideObjects(productiveTimeText, currentTimeTextObj, stopButton );
+                showObjectsDuringBreak(currentBreakTimeTextObj, currentBreakTimeObj,navigationBar);
+                Debug.Log("Timer finished!");
+            }
+        }
+
+        TimeSpan time = TimeSpan.FromSeconds(displayTime);
+        currentTimeText.text = time.Minutes.ToString() + ":" + time.Seconds.ToString();
+
+        if (timerDone == true)
+        {
+            currentBreakTime = currentBreakTime - Time.deltaTime;
+            if (currentBreakTime <= 0)
+            {
+                timerDone = false;
+                Debug.Log("Break Time finished");
+                stateAfterBreak(currentBreakTimeObj, currentBreakTimeTextObj, pomodoroPanel, timerPanel);
+            }
+            TimeSpan breakTime = TimeSpan.FromSeconds(currentBreakTime);
+        currentBreakTimeText.text = breakTime.Minutes.ToString() + ":" + breakTime.Seconds.ToString();
+        }
+
+
+
+
+
+
+
+
+       ///////////MICROSERVICE///////////////// 
+       if(runMc && CheckIfTimeDone() == false){
+        StartCoroutine(Get2(url));
+       }
+        
+        if(!checkDone)
+        {
+        if(CheckIfTimeDone() == true){
+            checkDone = true;
+            Debug.Log("TIME DONE");
+        }else{
+            Debug.Log("Time not done");
+           
+        }
+        }
+        ///////////////////////////////////////
+
+    }
+
+    
+
+    public Boolean CheckIfTimeDone()
+    {
+        float result = (secondTimeNumber - firstTimeNumber)/60;
+        Debug.Log("SecondNumber MINUS First = " + result);
+        if((float)Math.Floor(result) == dbNumber && (float)Math.Floor(result) != 0){
+            return true;
+        }else{
+            //Debug.Log("my Db number is " + dbNumber);
+            return false;
+        }
+
+    }
+
+    
+public void setDbNumber()
+    {
+        Reference.Child("users").Child(userId).GetValueAsync().ContinueWithOnMainThread(task => {
+            if (task.IsFaulted)
+            {
+                Debug.Log(task.Exception.Message);
+            }
+                else if (task.IsCompleted)
+                {
+                    DataSnapshot snapshot = task.Result;
+            
+                    Reference.Child("users")
+                        .Child(userId)
+                        .Child("taskTime")
+                        .SetValueAsync((int)sessionTime.value);
+
+                   
+                   //Debug.Log(dbNumber = int.Parse(snapshot.Child("taskTime").Value.ToString()));
+                    //dbNumber = Convert.ToInt32(snapshot.Child("taskTime").Value.ToString());
+                    loadData();
+                    
+                 
+                }
+       });
+    }
+
+    public void loadData()
+    {
+        Reference.Child("users").Child(userId).GetValueAsync().ContinueWithOnMainThread(task => {
+            if (task.IsFaulted)
+            {
+                Debug.Log(task.Exception.Message);
+            }
+            else if (task.IsCompleted)
+            {
+                DataSnapshot snapshot = task.Result;
+                dbNumber = int.Parse(snapshot.Child("taskTime").Value.ToString());
+                
+
+            }
+        });
+    }
+
+
+
+
+
+    public void StartTimer()
+    {
+        if (sessionTime.value >= 1)
+        {
+            timerActive = true;
+            callOnce = true;
+            runMc = true;
+            currentBreakTime = (int)breakTimeSlider.value * 60;
+            displayTime = (int)sessionTime.value * 60;
+            
+            
+        }
+        else
+        {
+            timerActive = true;
+            currentBreakTime = (int)breakTimeSlider.value * 60;
+            displayTime = 1 * 60;
+            Debug.Log(displayTime);
+        }
+    }
+
+//IEnumerator enables async-like functinality in Unity.
+    public IEnumerator Get(string url)
+    {
+        using(UnityWebRequest www = UnityWebRequest.Get(url)){
+            yield return www.SendWebRequest();
+
+            if (www.result == UnityWebRequest.Result.ConnectionError)
+            {
+                Debug.Log(www.error);
+            }
+            else
+            {
+                if (www.isDone)
+                {
+                    
+                    // handle the result
+                    var result = System.Text.Encoding.UTF8.GetString(www.downloadHandler.data);
+                    var timeValue = JsonUtility.FromJson<Timer_C>(result);
+                    
+                     firstTimeNumber = float.Parse(timeValue.number.ToString());
+
+                    //timerTest.setTimerValue(timesession);
+                    //numberTime = timerTest.getTime_session();
+                    
+
+                    
+
+                    
+
+                    Debug.Log("FirstTimeNumber: " + firstTimeNumber);
+                    //Debug.Log("time_Break = " + timeValue.nothing);
+                   // Debug.Log(probe);
+                    yield return firstTimeNumber;
+
+
+                    //Debug.Log(result);
+                }
+                else
+                {
+                    //handle the problem
+                    Debug.Log("Error! data couldn't get.");
+                }
+            }
+        }
+
+    }
+
+    public IEnumerator Get2(string url)
+    {
+        using(UnityWebRequest www = UnityWebRequest.Get(url)){
+            yield return www.SendWebRequest();
+
+            if (www.result == UnityWebRequest.Result.ConnectionError)
+            {
+                Debug.Log(www.error);
+            }
+            else
+            {
+                if (www.isDone)
+                {
+                
+                    // handle the result
+                    var result = System.Text.Encoding.UTF8.GetString(www.downloadHandler.data);
+                    var timeValue = JsonUtility.FromJson<Timer_C>(result);
+                    
+                     secondTimeNumber = float.Parse(timeValue.number.ToString());
+
+                    //timerTest.setTimerValue(timesession);
+                    //numberTime = timerTest.getTime_session();
+                    
+
+                    
+
+                    
+
+                   // Debug.Log("secondTimeNumber = " + secondTimeNumber);
+                    //Debug.Log("time_Break = " + timeValue.nothing);
+                   // Debug.Log(probe);
+                    yield return secondTimeNumber;
+
+
+                    //Debug.Log(result);
+                }
+                else
+                {
+                    //handle the problem
+                    Debug.Log("Error! data couldn't get.");
+                }
+            }
+        }
+
+    }
+
+    public void hideObjects(GameObject obj1, GameObject obj2, GameObject obj3){
+        obj1.SetActive(false);
+        obj2.SetActive(false);
+        obj3.SetActive(false);
+        
+    }
+
+    public void showObjectsDuringBreak(GameObject obj1, GameObject obj2,GameObject obj3){
+        obj1.SetActive(true);
+        obj2.SetActive(true);
+        obj3.SetActive(true);      
+    }
+
+    public void stateAfterBreak(GameObject obj1, GameObject obj2, GameObject obj3, GameObject obj4){
+        obj1.SetActive(false);
+        obj2.SetActive(false);
+        obj3.SetActive(false);
+        obj4.SetActive(true);
+        
+    }
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // Start is called before the first frame update
-    void Start()
+    /* void Start()
     {
         
         //sessionTime.value = timerTest.getTime_session();
@@ -114,6 +490,7 @@ public class Timer : MonoBehaviour
 
         if (timerDone == true)
         {
+           
             firstCall = false;
             
             currentBreakTime = currentBreakTime - Time.deltaTime;
@@ -155,7 +532,7 @@ public class Timer : MonoBehaviour
         {
             timerActive = true;
             currentTime = 1 * 60;
-        } */
+        } 
 
 
     }
@@ -260,12 +637,12 @@ public class Timer : MonoBehaviour
         }
 
     }
-
+ */
     
     
 
 
 
 
-
+    
 }
