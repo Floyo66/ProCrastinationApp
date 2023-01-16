@@ -34,7 +34,8 @@ public class Timer : MonoBehaviour
     public GameObject productiveTimeText;
     public GameObject currentBreakTimeTextObj;
     public GameObject currentBreakTimeObj;
-    public GameObject navigationBar;
+
+    public GameObject bottomNav;
 
     public GameObject topNav;
     TimerDoneNotification notificationManager;
@@ -469,7 +470,7 @@ public void setDbNumber()
                 //startTimer = false;
                 //Start();
                 hideObjects(productiveTimeText, currentTimeTextObj ,pauseButton, stopButton );
-                showObjectsDuringBreak(currentBreakTimeTextObj, currentBreakTimeObj,navigationBar);
+                showObjectsDuringBreak(currentBreakTimeTextObj, currentBreakTimeObj, bottomNav, topNav);
                 Debug.Log("Timer finished!");
                 
 
@@ -570,10 +571,11 @@ public void setDbNumber()
         obj4.SetActive(false);
     }
 
-    public void showObjectsDuringBreak(GameObject obj1, GameObject obj2,GameObject obj3){
+    public void showObjectsDuringBreak(GameObject obj1, GameObject obj2, GameObject obj3, GameObject obj4){
         obj1.SetActive(true);
         obj2.SetActive(true);
-        obj3.SetActive(true);      
+        obj3.SetActive(true);    
+        obj4.SetActive(true);  
     }
 
     public void stateAfterBreak(GameObject obj1, GameObject obj2, GameObject obj3, GameObject obj4){
