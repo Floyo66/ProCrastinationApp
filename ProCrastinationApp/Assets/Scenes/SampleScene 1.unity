@@ -496,7 +496,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &59594061
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3861,7 +3861,7 @@ MonoBehaviour:
   productiveTimeText: {fileID: 0}
   currentBreakTimeTextObj: {fileID: 0}
   currentBreakTimeObj: {fileID: 0}
-  navigationBar: {fileID: 0}
+  bottomNav: {fileID: 0}
   topNav: {fileID: 0}
   timerTest:
     number: 0
@@ -5502,8 +5502,8 @@ MonoBehaviour:
   productiveTimeText: {fileID: 1719485482}
   currentBreakTimeTextObj: {fileID: 59594060}
   currentBreakTimeObj: {fileID: 2043946846}
-  navigationBar: {fileID: 1424594280}
-  topNav: {fileID: 0}
+  bottomNav: {fileID: 1211518573}
+  topNav: {fileID: 1062278513}
   timerTest:
     number: 0
     nothing: 0
@@ -7536,7 +7536,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2043946847
 RectTransform:
   m_ObjectHideFlags: 0
@@ -8128,7 +8128,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2110049148
 RectTransform:
   m_ObjectHideFlags: 0
