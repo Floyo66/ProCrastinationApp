@@ -107,9 +107,11 @@ public class Timer : MonoBehaviour
     {
         float result = (secondTimeNumber - firstTimeNumber)/60;
 
+        if (result >= sessionTime.value) {
+            return true;
+        }
         
-        
-        
+        return false;
        
     }
 
