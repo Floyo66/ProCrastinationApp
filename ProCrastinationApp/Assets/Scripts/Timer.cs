@@ -12,11 +12,11 @@ public class Timer : MonoBehaviour
 {
     bool timerActive = false;
 
-    bool sendNotification = false;
+    // bool sendNotification = false;
 
-    bool timerDone = false;
+    
     public AudioSource Tick;
-    float currentTime;
+    public float displayTime;
     float currentBreakTime;
     public int startMinutes;
 
@@ -28,13 +28,16 @@ public class Timer : MonoBehaviour
 
     public GameObject pomodoroPanel;
     public GameObject timerPanel;
-    public GameObject pauseButton;
+   
     public GameObject stopButton;
     public GameObject currentTimeTextObj;
     public GameObject productiveTimeText;
     public GameObject currentBreakTimeTextObj;
     public GameObject currentBreakTimeObj;
-    public GameObject navigationBar;
+
+    public GameObject bottomNav;
+
+    public GameObject topNav;
     TimerDoneNotification notificationManager;
 
     public  Timer_C timerTest = new Timer_C();
@@ -47,13 +50,19 @@ public class Timer : MonoBehaviour
     public float numberTime;
     public DatabaseReference Reference;
     
-    public float dbNumber;
+    public int dbNumber;
 
     public float firstTimeNumber;
     public float secondTimeNumber;
 
-  
+    public bool timerDone = false;
 
+    public bool startIt = false;
+
+    public bool checkDone = false;
+
+    public bool callOnce = false;
+    public bool runMc = true;
 
 
     void Start()
@@ -63,6 +72,101 @@ public class Timer : MonoBehaviour
         // Get the root reference location of the database.
         Reference = FirebaseDatabase.DefaultInstance.RootReference;
 
+        Debug.Log("display Time: " + displayTime);
+        Debug.Log("slider time: " + sessionTime.value);
+
+        
+      // setDbNumber();
+      // StartCoroutine(Get(url));
+
+      
+
+
+    }
+
+
+    void Update()
+    {  
+        if(callOnce)
+        {
+            setDbNumber();
+            StartCoroutine(Get(url));
+            callOnce = false;
+        }
+
+        if(timerActive == true)
+        {
+            displayTime = displayTime - Time.deltaTime;
+
+            if(displayTime <= 0 && CheckIfTimeDone())
+            {
+                timerActive = false;
+                timerDone = true;
+                hideObjects(productiveTimeText, currentTimeTextObj, stopButton );
+                showObjectsDuringBreak(currentBreakTimeTextObj, currentBreakTimeObj, bottomNav, topNav);
+                Debug.Log("Timer finished!");
+            }
+        }
+
+        TimeSpan time = TimeSpan.FromSeconds(displayTime);
+        currentTimeText.text = time.Minutes.ToString() + ":" + time.Seconds.ToString();
+
+        if (timerDone == true)
+        {
+            currentBreakTime = currentBreakTime - Time.deltaTime;
+            if (currentBreakTime <= 0)
+            {
+                timerDone = false;
+                Debug.Log("Break Time finished");
+                stateAfterBreak(currentBreakTimeObj, currentBreakTimeTextObj, pomodoroPanel, timerPanel);
+            }
+            TimeSpan breakTime = TimeSpan.FromSeconds(currentBreakTime);
+        currentBreakTimeText.text = breakTime.Minutes.ToString() + ":" + breakTime.Seconds.ToString();
+        }
+
+
+
+
+
+
+
+
+       ///////////MICROSERVICE///////////////// 
+       if(runMc && CheckIfTimeDone() == false){
+        StartCoroutine(Get2(url));
+       }
+        
+        if(!checkDone)
+        {
+        if(CheckIfTimeDone() == true){
+            checkDone = true;
+            Debug.Log("TIME DONE");
+        }else{
+            Debug.Log("Time not done");
+           
+        }
+        }
+        ///////////////////////////////////////
+
+    }
+
+    
+
+    public Boolean CheckIfTimeDone()
+    {
+        float result = (secondTimeNumber - firstTimeNumber)/60;
+        Debug.Log("SecondNumber MINUS First = " + result);
+        if((float)Math.Floor(result) == dbNumber && (float)Math.Floor(result) != 0){
+            return true;
+        }else{
+            //Debug.Log("my Db number is " + dbNumber);
+            return false;
+        }
+    }
+
+    
+public void setDbNumber()
+    {
         Reference.Child("users").Child(userId).GetValueAsync().ContinueWithOnMainThread(task => {
             if (task.IsFaulted)
             {
@@ -75,46 +179,34 @@ public class Timer : MonoBehaviour
                     Reference.Child("users")
                         .Child(userId)
                         .Child("taskTime")
-                        .SetValueAsync(currentTime.ToString());
+                        .SetValueAsync((int)sessionTime.value);
 
-                    dbNumber = float.Parse(snapshot.Child("taskTime").Value.ToString());
-
-                    Debug.Log("DB Number" + dbNumber);
+                   
+                   //Debug.Log(dbNumber = int.Parse(snapshot.Child("taskTime").Value.ToString()));
+                    //dbNumber = Convert.ToInt32(snapshot.Child("taskTime").Value.ToString());
+                    loadData();
+                    
                  
                 }
        });
-
-       StartCoroutine(Get(url));
-
-      
-
-
     }
 
-    void Update()
+    public void loadData()
     {
-        StartCoroutine(Get2(url));
-        if(CheckIfTimeDone() == true){
-            Debug.Log("TIME DONE");
-        }else{
-            Debug.Log("Time not done");
-           
-        }
+        Reference.Child("users").Child(userId).GetValueAsync().ContinueWithOnMainThread(task => {
+            if (task.IsFaulted)
+            {
+                Debug.Log(task.Exception.Message);
+            }
+            else if (task.IsCompleted)
+            {
+                DataSnapshot snapshot = task.Result;
+                dbNumber = int.Parse(snapshot.Child("taskTime").Value.ToString());
+                
 
+            }
+        });
     }
-
-    public Boolean CheckIfTimeDone()
-    {
-        float result = (secondTimeNumber - firstTimeNumber)/60;
-
-        if (result >= sessionTime.value) {
-            return true;
-        }
-        
-        return false;
-       
-    }
-
 
 
 
@@ -125,15 +217,19 @@ public class Timer : MonoBehaviour
         if (sessionTime.value >= 1)
         {
             timerActive = true;
-            currentTime = (int)sessionTime.value * 1;
-
-            Debug.Log(currentTime);
+            callOnce = true;
+            runMc = true;
+            currentBreakTime = (int)breakTimeSlider.value * 60;
+            displayTime = (int)sessionTime.value * 60;
+            
+            
         }
         else
         {
             timerActive = true;
-            currentTime = 1 * 60;
-            Debug.Log(currentTime);
+            currentBreakTime = (int)breakTimeSlider.value * 60;
+            displayTime = 1 * 60;
+            Debug.Log(displayTime);
         }
     }
 
@@ -151,7 +247,7 @@ public class Timer : MonoBehaviour
             {
                 if (www.isDone)
                 {
-                
+                    
                     // handle the result
                     var result = System.Text.Encoding.UTF8.GetString(www.downloadHandler.data);
                     var timeValue = JsonUtility.FromJson<Timer_C>(result);
@@ -212,7 +308,7 @@ public class Timer : MonoBehaviour
 
                     
 
-                    Debug.Log("Timer_session = " + secondTimeNumber);
+                   // Debug.Log("secondTimeNumber = " + secondTimeNumber);
                     //Debug.Log("time_Break = " + timeValue.nothing);
                    // Debug.Log(probe);
                     yield return secondTimeNumber;
@@ -230,6 +326,27 @@ public class Timer : MonoBehaviour
 
     }
 
+    public void hideObjects(GameObject obj1, GameObject obj2, GameObject obj3){
+        obj1.SetActive(false);
+        obj2.SetActive(false);
+        obj3.SetActive(false);
+        
+    }
+
+    public void showObjectsDuringBreak(GameObject obj1, GameObject obj2,GameObject obj3, GameObject obj4){
+        obj1.SetActive(true);
+        obj2.SetActive(true);
+        obj3.SetActive(true);   
+        obj4.SetActive(true);      
+    }
+
+    public void stateAfterBreak(GameObject obj1, GameObject obj2, GameObject obj3, GameObject obj4){
+        obj1.SetActive(false);
+        obj2.SetActive(false);
+        obj3.SetActive(false);
+        obj4.SetActive(true);
+        
+    }
    
 
 
@@ -353,7 +470,7 @@ public class Timer : MonoBehaviour
                 //startTimer = false;
                 //Start();
                 hideObjects(productiveTimeText, currentTimeTextObj ,pauseButton, stopButton );
-                showObjectsDuringBreak(currentBreakTimeTextObj, currentBreakTimeObj,navigationBar);
+                showObjectsDuringBreak(currentBreakTimeTextObj, currentBreakTimeObj, bottomNav, topNav);
                 Debug.Log("Timer finished!");
                 
 
@@ -454,10 +571,11 @@ public class Timer : MonoBehaviour
         obj4.SetActive(false);
     }
 
-    public void showObjectsDuringBreak(GameObject obj1, GameObject obj2,GameObject obj3){
+    public void showObjectsDuringBreak(GameObject obj1, GameObject obj2, GameObject obj3, GameObject obj4){
         obj1.SetActive(true);
         obj2.SetActive(true);
-        obj3.SetActive(true);      
+        obj3.SetActive(true);    
+        obj4.SetActive(true);  
     }
 
     public void stateAfterBreak(GameObject obj1, GameObject obj2, GameObject obj3, GameObject obj4){
