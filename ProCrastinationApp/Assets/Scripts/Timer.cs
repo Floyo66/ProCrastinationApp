@@ -12,7 +12,7 @@ public class Timer : MonoBehaviour
 {
     bool timerActive = false;
 
-    bool sendNotification = false;
+    // bool sendNotification = false;
 
     
     public AudioSource Tick;
@@ -103,7 +103,7 @@ public class Timer : MonoBehaviour
                 timerActive = false;
                 timerDone = true;
                 hideObjects(productiveTimeText, currentTimeTextObj, stopButton );
-                showObjectsDuringBreak(currentBreakTimeTextObj, currentBreakTimeObj,navigationBar);
+                showObjectsDuringBreak(currentBreakTimeTextObj, currentBreakTimeObj, topNav, bottomNav);
                 Debug.Log("Timer finished!");
             }
         }
@@ -334,10 +334,11 @@ public void setDbNumber()
         
     }
 
-    public void showObjectsDuringBreak(GameObject obj1, GameObject obj2,GameObject obj3){
+    public void showObjectsDuringBreak(GameObject obj1, GameObject obj2, GameObject obj3, GameObject obj4){
         obj1.SetActive(true);
         obj2.SetActive(true);
         obj3.SetActive(true);      
+        obj4.SetActive(true);    
     }
 
     public void stateAfterBreak(GameObject obj1, GameObject obj2, GameObject obj3, GameObject obj4){
