@@ -110,9 +110,7 @@ public class Timer : MonoBehaviour
         if (result >= sessionTime.value) {
             return true;
         }
-        
         return false;
-       
     }
 
 
